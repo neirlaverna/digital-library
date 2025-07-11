@@ -1,11 +1,10 @@
 // frontend/src/pages/HomePage.js
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Row,
   Col,
   Typography,
   Button,
-  Carousel,
   Statistic,
   Card,
   Tag,
@@ -19,14 +18,15 @@ import {
   BulbOutlined,
   RightOutlined,
   SyncOutlined,
+  TagsOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import { Container, Grid, GradientButton } from "../styles/GlobalStyle";
 import BookCard from "../components/BookCard/BookCard";
-import { apiService, userPreferences } from "../services/apiService";
+import { apiService } from "../services/apiService";
 
 const { Title, Paragraph } = Typography;
 
@@ -115,24 +115,25 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   // Fetch data
-  const { data: booksData, isLoading: booksLoading } = useQuery(
-    "recent-books",
-    () => apiService.getAllBooks({ limit: 8 }),
-    { staleTime: 5 * 60 * 1000 }
-  );
+  const { data: booksData, isLoading: booksLoading } = useQuery({
+    queryKey: ["recent-books"],
+    queryFn: () => apiService.getAllBooks({ limit: 8 }),
+    staleTime: 5 * 60 * 1000,
+  });
 
   const { data: recommendationsData, isLoading: recommendationsLoading } =
-    useQuery(
-      "home-recommendations",
-      () => apiService.getRecommendations({ type: "popular", limit: 6 }),
-      { staleTime: 5 * 60 * 1000 }
-    );
+    useQuery({
+      queryKey: ["home-recommendations"],
+      queryFn: () =>
+        apiService.getRecommendations({ type: "popular", limit: 6 }),
+      staleTime: 5 * 60 * 1000,
+    });
 
-  const { data: analyticsData } = useQuery(
-    "home-analytics",
-    () => apiService.getAnalytics(),
-    { staleTime: 10 * 60 * 1000 }
-  );
+  const { data: analyticsData } = useQuery({
+    queryKey: ["home-analytics"],
+    queryFn: () => apiService.getAnalytics(),
+    staleTime: 10 * 60 * 1000,
+  });
 
   const handleSyncData = async () => {
     setSyncLoading(true);
@@ -230,7 +231,7 @@ const HomePage = () => {
                 <Statistic
                   title="Genre"
                   value={analyticsData.genres?.length || 0}
-                  prefix={<TagOutlined style={{ color: "#667eea" }} />}
+                  prefix={<TagsOutlined style={{ color: "#667eea" }} />}
                 />
               </StatsCard>
             </Col>
